@@ -22,19 +22,11 @@ export const POST = async (req: Request) => {
     const qrCodeDataUrl = await generateQRCodeForImageDownload(link);
 
     const payload: NextAction = {
-      type: "action",
-      title: "mint the NFT for 0.001 SOL",
+      type: "completed",
+      title: "Tx Activity",
       icon: `https://res.cloudinary.com/dbe4r5mep/image/upload/v1725111275/${stat_account}.png`,
       label: "Complete!",
       description: `Here is your image url ${link}`,
-      links: {
-        actions: [
-          {
-            label: "Mint as NFT",
-            href: `/api/actions/stats/next-action/mint?account=${stat_account}`,
-          },
-        ],
-      },
     };
 
     return Response.json(payload, {

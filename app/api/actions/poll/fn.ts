@@ -1,10 +1,7 @@
-import { createCanvas, registerFont } from "canvas";
-import path from "path";
-
+import { createCanvas } from "canvas";
+ 
 export function createBarGraph(voteA: number, voteB: number): string {
-  const fontPath = path.join(process.cwd(), "public", "arial.ttf");
-  registerFont(fontPath, { family: "Arial" });
-
+ 
   const width = 400;
   const height = 300;
   const canvas = createCanvas(width, height);
