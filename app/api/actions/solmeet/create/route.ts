@@ -54,7 +54,7 @@ export async function POST(req: Request) {
   const body: ActionPostRequest = await req.json();
   //@ts-ignore
   //if username is not valid, please send a action error
-  await getEventTypes(body.data.username);
+  const eventdata = await getEventTypes(body.data.username);
   let account: PublicKey;
   try {
     account = new PublicKey(body.account);
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
 
   const instruction = SystemProgram.transfer({
     fromPubkey: account,
-    toPubkey: new PublicKey(""),
+    toPubkey: new PublicKey("EXBdeRCdiNChKyD7akt64n9HgSXEpUtpPEhmbnm4L6iH"),
     lamports: 0,
   });
 
@@ -88,6 +88,12 @@ export async function POST(req: Request) {
     fields: {
       transaction: tx,
       message: `edsuif cerdcguv nt fdv`,
+      links: {
+        next: {
+          href: `/api/actions/solmeet/create/next-action?data=${eventdata}`,
+          type: "post",
+        },
+      },
     },
   });
 
@@ -101,8 +107,8 @@ async function getEventTypes(username: any) {
     const nextDataScript = $("#__NEXT_DATA__").html();
     const jsonData = JSON.parse(nextDataScript!);
     const eventTypes = jsonData.props.pageProps.eventTypes;
-    console.log("full");
-    console.log(JSON.stringify(eventTypes, null, 2));
+    const eventdata = JSON.stringify(eventTypes, null, 2);
+    return eventdata;
   } catch (error) {
     console.log(error);
   }
