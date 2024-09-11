@@ -2,12 +2,20 @@ import {
   Action,
   ActionGetResponse,
   ActionPostRequest,
+  ActionPostResponse,
   createActionHeaders,
+  createPostResponse,
 } from "@solana/actions";
-import { PublicKey } from "@solana/web3.js";
-import axios from 'axios';
+import {
+  clusterApiUrl,
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
+import axios from "axios";
 // import cheerio from 'cheerio';
-import * as cheerio from 'cheerio';
+import * as cheerio from "cheerio";
 const headers = createActionHeaders();
 
 export function GET() {
@@ -57,8 +65,33 @@ export async function POST(req: Request) {
     });
   }
 
-  console.log(account, body);
-  return Response.json({ success: true }, { headers });
+  const connection = new Connection(clusterApiUrl("devnet"));
+
+  const { blockhash, lastValidBlockHeight } =
+    await connection.getLatestBlockhash();
+
+  const instruction = SystemProgram.transfer({
+    fromPubkey: account,
+    toPubkey: new PublicKey(""),
+    lamports: 0,
+  });
+
+  const tx = new Transaction({
+    feePayer: account,
+    blockhash,
+    lastValidBlockHeight,
+  });
+
+  tx.add(instruction);
+
+  const payload: ActionPostResponse = await createPostResponse({
+    fields: {
+      transaction: tx,
+      message: `edsuif cerdcguv nt fdv`,
+    },
+  });
+
+  return Response.json(payload, { headers });
 }
 
 async function getEventTypes(username: any) {
