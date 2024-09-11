@@ -5,7 +5,9 @@ import {
   createActionHeaders,
 } from "@solana/actions";
 import { PublicKey } from "@solana/web3.js";
-
+import axios from 'axios';
+// import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 const headers = createActionHeaders();
 
 export function GET() {
@@ -42,7 +44,9 @@ export async function OPTIONS() {
 
 export async function POST(req: Request) {
   const body: ActionPostRequest = await req.json();
-
+  //@ts-ignore
+  //if username is not valid, please send a action error
+  await getEventTypes(body.data.username);
   let account: PublicKey;
   try {
     account = new PublicKey(body.account);
@@ -55,4 +59,18 @@ export async function POST(req: Request) {
 
   console.log(account, body);
   return Response.json({ success: true }, { headers });
+}
+
+async function getEventTypes(username: any) {
+  try {
+    const { data } = await axios.get(`https://cal.com/${username}`);
+    const $ = cheerio.load(data);
+    const nextDataScript = $("#__NEXT_DATA__").html();
+    const jsonData = JSON.parse(nextDataScript!);
+    const eventTypes = jsonData.props.pageProps.eventTypes;
+    console.log("full");
+    console.log(JSON.stringify(eventTypes, null, 2));
+  } catch (error) {
+    console.log(error);
+  }
 }

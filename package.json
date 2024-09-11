@@ -23,11 +23,12 @@
     "@solana/web3.js": "^1.95.3",
     "@sqds/multisig": "^2.1.1",
     "@types/bn.js": "^5.1.5",
-    "axios": "^1.7.4",
+    "axios": "^1.7.7",
     "blinksights-sdk": "^1.0.13",
     "bn.js": "^5.2.1",
     "bs58": "^6.0.0",
     "canvas": "^2.11.2",
+    "cheerio": "^1.0.0",
     "cloudinary": "^2.4.0",
     "next": "14.2.5",
     "prisma": "^5.19.0",
@@ -37,6 +38,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@types/cheerio": "^0.22.35",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18",
