@@ -2,10 +2,12 @@ import {
     Action,
     ActionError,
     ActionPostRequest,
+    ActionPostResponse,
     createActionHeaders,
+    createPostResponse,
     NextAction,
   } from "@solana/actions";
-import { clusterApiUrl, Connection, PublicKey, SystemProgram } from "@solana/web3.js";
+import { clusterApiUrl, Connection, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
   
   const headers = createActionHeaders();
   
@@ -23,14 +25,52 @@ import { clusterApiUrl, Connection, PublicKey, SystemProgram } from "@solana/web
     //@ts-ignore
     const arr=body.data.meetid.split(",");
     console.log(arr);
-    
-    const payload: NextAction = {
-      type: "completed",
-      title: "Generate Blink",
-      label: "abcd edf",
-      description: "this is the only description",
-      icon: "https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1685376092-no-show-fee.png&w=1200&q=75",
-    };
+    let account: PublicKey;
+    try {
+        account = new PublicKey(body.account);
+    } catch (err) {
+        return new Response('Invalid "account" provided', {
+        status: 400,
+        headers,
+        });
+    }
+
+    const connection = new Connection(clusterApiUrl("devnet"));
+
+    const { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
+
+    const instruction = SystemProgram.transfer({
+        fromPubkey: account,
+        toPubkey: new PublicKey("EXBdeRCdiNChKyD7akt64n9HgSXEpUtpPEhmbnm4L6iH"),
+        lamports: 0,
+    });
+
+    const tx = new Transaction({
+        feePayer: account,
+        blockhash,
+        lastValidBlockHeight,
+    });
+
+    tx.add(instruction);
+
+    const payload: ActionPostResponse = await createPostResponse({
+        fields: {
+        transaction: tx,
+        message: `this is the last action`,
+        links:{next:{
+            type:"inline",
+            action:{
+                type:"completed",
+                title:"completed the txn",
+                description:"yes bro done",
+                icon:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/330px-QR_code_for_mobile_English_Wikipedia.svg.png",
+                label:"completed"
+            }
+        }}
+        },
+    });
+
     return Response.json(payload, { headers });
   }
   
