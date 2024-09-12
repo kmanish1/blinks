@@ -16,7 +16,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import axios from "axios";
-import * as cheerio from "cheerio";
+
 const headers = createActionHeaders();
 
 export const GET = async (req: Request) => {
@@ -32,9 +32,9 @@ export async function POST(req: Request) {
   const body: ActionPostRequest = await req.json();
   //@ts-ignore
   const arr = body.data.meetid.split(",");
-  const imageURl = await axios.get(`https://cal.com/${arr[3]}`);
-  const $ = cheerio.load(imageURl.data);
-  const ogImage = $('meta[property="og:image"]').attr("content");
+  const ogImageUrl="https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1662742861-calendso-rebrands-to-cal-com.png&w=1200&q=75"
+  console.log(ogImageUrl);
+
   let account: PublicKey;
   try {
     account = new PublicKey(body.account);
@@ -52,11 +52,10 @@ export async function POST(req: Request) {
       title: arr[1],
       description: arr[2],
       address: account.toBase58(),
-      price: price,
-      image: ogImage,
+      price: parseInt(price),
+      image: ogImageUrl!,
     },
   });
-
   const connection = new Connection(clusterApiUrl("devnet"));
 
   const { blockhash, lastValidBlockHeight } =
@@ -86,7 +85,7 @@ export async function POST(req: Request) {
           action: {
             type: "completed",
             title: "completed the txn",
-            description: "yes bro done",
+            description: `Here is your url https://api/actions/solmeet/meet/?${id.id}`,
             icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/330px-QR_code_for_mobile_English_Wikipedia.svg.png",
             label: "completed",
           },
