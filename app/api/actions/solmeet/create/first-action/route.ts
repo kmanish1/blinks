@@ -17,18 +17,18 @@ export const GET = async (req: Request) => {
 export const OPTIONS = async () => Response.json(null, { headers });
 
 export async function POST(req: Request) {
-  try{
+  try {
     const url = new URL(req.url);
     const data = JSON.parse(url.searchParams.get("data")!);
     console.log(data);
     //@ts-ignore
-    const arr = data!.map(d => ({
-      label:d.title,
-      value: `${d.id},${d.title},${d.description}`
+    const arr = data!.map((d) => ({
+      label: d.title,
+      value: `${d.id},${d.title},${d.description}`,
     }));
-    
-    const payload:NextAction = {
-      type:"action",
+
+    const payload: NextAction = {
+      type: "action",
       title: "Generate Blink",
       label: "abcd edf",
       description: "this is the only description",
@@ -47,21 +47,21 @@ export async function POST(req: Request) {
                 required: true,
               },
               {
-                type:"number",
-                label:"Enter price for one slot (USDC)",
-                name:"Price"
-              }
+                type: "number",
+                label: "Enter price for one slot (USDC)",
+                name: "Price",
+              },
             ],
           },
         ],
       },
     };
     return Response.json(payload, { headers });
-  }catch(e){
-    let ActionError:ActionError={message:"abcd"};
-    return Response.json(ActionError,{
-      status:400,
+  } catch (e) {
+    let ActionError: ActionError = { message: "abcd" };
+    return Response.json(ActionError, {
+      status: 400,
       headers,
-    })
+    });
   }
 }

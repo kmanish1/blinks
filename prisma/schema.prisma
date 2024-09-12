@@ -20,7 +20,6 @@ model Vote {
   createdAt DateTime @default(now())
 }
 
-
 model Blink {
   id          String   @id @default(uuid())
   title       String
@@ -29,5 +28,16 @@ model Blink {
   account     String
   amount      String
   message     String
+  createdAt   DateTime @default(now())
+}
+
+model SolMeet {
+  id          String   @id @default(uuid())
+  meetingId   Int
+  title       String
+  image       String
+  description String
+  address     String
+  price       Int
   createdAt   DateTime @default(now())
 }
