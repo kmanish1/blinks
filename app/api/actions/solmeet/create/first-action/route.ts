@@ -49,7 +49,7 @@ export async function POST(req: Request) {
               {
                 type: "number",
                 label: "Enter price for one slot (USDC)",
-                name: "Price",
+                name: "price",
               },
             ],
           },
