@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     //@ts-ignore
     const arr = data!.map((d) => ({
       label: d.title,
-      value: `${d.id},${d.title},${d.description}`,
+      value: `${d.id},${d.title},${d.description},${d.slug}`,
     }));
 
     const payload: NextAction = {

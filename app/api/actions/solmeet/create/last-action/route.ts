@@ -15,7 +15,8 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-
+import axios from "axios";
+import * as cheerio from "cheerio";
 const headers = createActionHeaders();
 
 export const GET = async (req: Request) => {
@@ -26,33 +27,35 @@ export const GET = async (req: Request) => {
 };
 
 export const OPTIONS = async () => Response.json(null, { headers });
-const prisma=new PrismaClient();
+const prisma = new PrismaClient();
 export async function POST(req: Request) {
   const body: ActionPostRequest = await req.json();
   //@ts-ignore
   const arr = body.data.meetid.split(",");
-  console.log(arr);
+  const imageURl = await axios.get(`https://cal.com/${arr[3]}`);
+  const $ = cheerio.load(imageURl.data);
+  const ogImage = $('meta[property="og:image"]').attr("content");
   let account: PublicKey;
   try {
-      account = new PublicKey(body.account);
-    } catch (err) {
-        return new Response('Invalid "account" provided', {
-            status: 400,
-            headers,
-        });
-    }
-    //@ts-ignore
-    let price=body.data!.price;
-    const id=await prisma.solMeet.create({
-      data:{
-          meetingId:parseInt(arr[0]),
-          title:arr[1],
-          description:arr[2],
-          address:account.toBase58(),
-          price:price,
-          image:""
-      }
-    })
+    account = new PublicKey(body.account);
+  } catch (err) {
+    return new Response('Invalid "account" provided', {
+      status: 400,
+      headers,
+    });
+  }
+  //@ts-ignore
+  let price = body.data!.price;
+  const id = await prisma.solMeet.create({
+    data: {
+      meetingId: parseInt(arr[0]),
+      title: arr[1],
+      description: arr[2],
+      address: account.toBase58(),
+      price: price,
+      image: ogImage,
+    },
+  });
 
   const connection = new Connection(clusterApiUrl("devnet"));
 
@@ -94,4 +97,3 @@ export async function POST(req: Request) {
 
   return Response.json(payload, { headers });
 }
-
