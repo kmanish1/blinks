@@ -28,7 +28,7 @@ export function GET() {
     links: {
       actions: [
         {
-          label: "Next",
+          label: "Connect your wallet",
           href: "/api/actions/solmeet/create",
           parameters: [
             {
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
       message: `edsuif cerdcguv nt fdv`,
       links: {
         next: {
-          href: `/api/actions/solmeet/create/next-action?data=${eventdata}`,
+          href: `/api/actions/solmeet/create/first-action?data=${eventdata}`,
           type: "post",
         },
       },

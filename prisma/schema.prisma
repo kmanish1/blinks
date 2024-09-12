@@ -20,6 +20,7 @@ model Vote {
   createdAt DateTime @default(now())
 }
 
+
 model Blink {
   id          String   @id @default(uuid())
   title       String
