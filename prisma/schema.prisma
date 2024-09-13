@@ -28,6 +28,7 @@ model Blink {
 model SolMeet {
   id          String   @id @default(uuid())
   username    String
+  slug        String
   meetingId   Int
   title       String
   image       String   @db.Text

@@ -43,6 +43,7 @@ export async function POST(req: Request) {
   const id = await prisma.solMeet.create({
     data: {
       username,
+      slug: arr[3],
       meetingId: parseInt(arr[0]),
       title: arr[1],
       description: arr[2],

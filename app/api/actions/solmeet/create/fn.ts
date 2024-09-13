@@ -1,6 +1,7 @@
 import {
   clusterApiUrl,
   Connection,
+  LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
   Transaction,
@@ -9,7 +10,7 @@ import {
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-export async function mockTx(account: PublicKey) {
+export async function mockTx(account: PublicKey, amount?: number) {
   try {
     const connection = new Connection(clusterApiUrl("devnet"));
 
@@ -19,7 +20,7 @@ export async function mockTx(account: PublicKey) {
     const instruction = SystemProgram.transfer({
       fromPubkey: account,
       toPubkey: new PublicKey("EXBdeRCdiNChKyD7akt64n9HgSXEpUtpPEhmbnm4L6iH"),
-      lamports: 0,
+      lamports: amount ? amount * LAMPORTS_PER_SOL : 0,
     });
 
     const tx = new Transaction({
