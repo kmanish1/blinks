@@ -1,21 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import {
-  Action,
   ActionError,
   ActionPostRequest,
   ActionPostResponse,
   createActionHeaders,
   createPostResponse,
-  NextAction,
 } from "@solana/actions";
-import {
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import axios from "axios";
+import * as cheerio from "cheerio";
+import { mockTx } from "../fn";
 
 const headers = createActionHeaders();
 
@@ -27,22 +21,20 @@ export const GET = async (req: Request) => {
 };
 
 export const OPTIONS = async () => Response.json(null, { headers });
+
 const prisma = new PrismaClient();
+
 export async function POST(req: Request) {
   const body: ActionPostRequest = await req.json();
   //@ts-ignore
   const arr = body.data.meetid.split(",");
-  const ogImageUrl="https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1662742861-calendso-rebrands-to-cal-com.png&w=1200&q=75"
-  console.log(ogImageUrl);
+  const ogImageUrl = await getImage();
 
   let account: PublicKey;
   try {
     account = new PublicKey(body.account);
   } catch (err) {
-    return new Response('Invalid "account" provided', {
-      status: 400,
-      headers,
-    });
+    throw new Error("Invalid account");
   }
   //@ts-ignore
   let price = body.data!.price;
@@ -56,24 +48,8 @@ export async function POST(req: Request) {
       image: ogImageUrl!,
     },
   });
-  const connection = new Connection(clusterApiUrl("devnet"));
 
-  const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash();
-
-  const instruction = SystemProgram.transfer({
-    fromPubkey: account,
-    toPubkey: new PublicKey("EXBdeRCdiNChKyD7akt64n9HgSXEpUtpPEhmbnm4L6iH"),
-    lamports: 0,
-  });
-
-  const tx = new Transaction({
-    feePayer: account,
-    blockhash,
-    lastValidBlockHeight,
-  });
-
-  tx.add(instruction);
+  const tx = await mockTx(account);
 
   const payload: ActionPostResponse = await createPostResponse({
     fields: {
@@ -95,4 +71,14 @@ export async function POST(req: Request) {
   });
 
   return Response.json(payload, { headers });
+}
+
+async function getImage() {
+  const res = await axios.get("https://cal.com/thrishank");
+  const html = res.data;
+
+  const $ = cheerio.load(html);
+  const ogImage = $('meta[property="og:image"]').attr("content");
+
+  return ogImage;
 }

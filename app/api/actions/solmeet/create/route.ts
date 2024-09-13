@@ -1,49 +1,52 @@
 import {
-  Action,
+  ActionError,
   ActionGetResponse,
   ActionPostRequest,
   ActionPostResponse,
   createActionHeaders,
   createPostResponse,
+  NextActionLink,
 } from "@solana/actions";
-import {
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
-import axios from "axios";
-// import cheerio from 'cheerio';
-import * as cheerio from "cheerio";
+import { PublicKey } from "@solana/web3.js";
+import { getEventTypes, mockTx } from "./fn";
+
 const headers = createActionHeaders();
 
 export function GET() {
-  const payload: ActionGetResponse = {
-    title: "Connect blinks and cal.com",
-    description: "sd ckwdsfcoiwdskl fwkjdfn vwrkdsc",
-    label: "Connect",
-    icon: "https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1685376092-no-show-fee.png&w=1200&q=75",
-    type: "action",
-    links: {
-      actions: [
-        {
-          label: "Connect your wallet",
-          href: "/api/actions/solmeet/create",
-          parameters: [
-            {
-              type: "text",
-              label: "Enter your cal.com username",
-              name: "username",
-              required: true,
-            },
-          ],
-        },
-      ],
-    },
-  };
+  try {
+    const payload: ActionGetResponse = {
+      title: "Connect blinks and cal.com",
+      description: "sd ckwdsfcoiwdskl fwkjdfn vwrkdsc",
+      label: "Connect",
+      icon: "https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1685376092-no-show-fee.png&w=1200&q=75",
+      type: "action",
+      links: {
+        actions: [
+          {
+            label: "Connect your wallet",
+            href: "/api/actions/solmeet/create",
+            parameters: [
+              {
+                type: "text",
+                label: "Enter your cal.com username",
+                name: "username",
+                required: true,
+              },
+            ],
+          },
+        ],
+      },
+    };
 
-  return Response.json(payload, { headers });
+    return Response.json(payload, { headers });
+  } catch (err) {
+    console.log(err);
+    let actionError: ActionError = { message: "An unknown error occurred" };
+    return Response.json(actionError, {
+      status: 400,
+      headers,
+    });
+  }
 }
 
 export async function OPTIONS() {
@@ -51,65 +54,80 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: Request) {
-  const body: ActionPostRequest = await req.json();
-  //@ts-ignore
-  //if username is not valid, please send a action error
-  const eventdata = await getEventTypes(body.data.username);
-  let account: PublicKey;
   try {
-    account = new PublicKey(body.account);
+    const body: ActionPostRequest = await req.json();
+
+    let account: PublicKey;
+    try {
+      account = new PublicKey(body.account);
+    } catch (err) {
+      throw "Invalid account provided";
+    }
+
+    const tx = await mockTx(account);
+
+    // @ts-ignore
+    const arr = await getEventTypes(body.data.username);
+
+    const payload: ActionPostResponse = await createPostResponse({
+      fields: {
+        transaction: tx,
+        message: `edsuif cerdcguv nt fdv`,
+        links: {
+          next: NextAction(arr),
+        },
+      },
+    });
+
+    return Response.json(payload, { headers });
   } catch (err) {
-    return new Response('Invalid "account" provided', {
+    console.log(err);
+    let actionError: ActionError = { message: "An unknown error occurred" };
+
+    if (err instanceof Error) {
+      actionError.message = err.message;
+    } else if (typeof err === "string") {
+      actionError.message = err;
+    }
+
+    return Response.json(actionError, {
       status: 400,
       headers,
     });
   }
-
-  const connection = new Connection(clusterApiUrl("devnet"));
-
-  const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash();
-
-  const instruction = SystemProgram.transfer({
-    fromPubkey: account,
-    toPubkey: new PublicKey("EXBdeRCdiNChKyD7akt64n9HgSXEpUtpPEhmbnm4L6iH"),
-    lamports: 0,
-  });
-
-  const tx = new Transaction({
-    feePayer: account,
-    blockhash,
-    lastValidBlockHeight,
-  });
-
-  tx.add(instruction);
-
-  const payload: ActionPostResponse = await createPostResponse({
-    fields: {
-      transaction: tx,
-      message: `edsuif cerdcguv nt fdv`,
-      links: {
-        next: {
-          href: `/api/actions/solmeet/create/first-action?data=${eventdata}`,
-          type: "post",
-        },
-      },
-    },
-  });
-
-  return Response.json(payload, { headers });
 }
 
-async function getEventTypes(username: any) {
-  try {
-    const { data } = await axios.get(`https://cal.com/${username}`);
-    const $ = cheerio.load(data);
-    const nextDataScript = $("#__NEXT_DATA__").html();
-    const jsonData = JSON.parse(nextDataScript!);
-    const eventTypes = jsonData.props.pageProps.eventTypes;
-    const eventdata = JSON.stringify(eventTypes, null, 2);
-    return eventdata;
-  } catch (error) {
-    console.log(error);
-  }
+function NextAction(arr: any): NextActionLink {
+  return {
+    type: "inline",
+    action: {
+      type: "action",
+      title: "Generate Blink",
+      description: "this is the only description",
+      icon: "https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1685376092-no-show-fee.png&w=1200&q=75",
+      label: "abcd edf",
+      links: {
+        actions: [
+          {
+            label: "Create your blink",
+            href: "/api/actions/solmeet/create/action",
+            parameters: [
+              {
+                type: "select",
+                options: arr,
+                label: "Select an option",
+                name: "meetid",
+                required: true,
+              },
+              {
+                type: "number",
+                label: "Enter price for one slot (USDC)",
+                name: "price",
+              },
+            ],
+          },
+        ],
+      },
+    },
+  };
 }
