@@ -68,14 +68,15 @@ export async function POST(req: Request) {
     const tx = await mockTx(account);
 
     // @ts-ignore
-    const arr = await getEventTypes(body.data.username);
+    const username = body.data.username;
+    const arr = await getEventTypes(username);
 
     const payload: ActionPostResponse = await createPostResponse({
       fields: {
         transaction: tx,
         message: `Received the wallet address and in the next step set the price`,
         links: {
-          next: NextAction(arr),
+          next: NextAction(arr, username),
         },
       },
     });
@@ -98,7 +99,7 @@ export async function POST(req: Request) {
   }
 }
 
-function NextAction(arr: any): NextActionLink {
+function NextAction(arr: any, username: string): NextActionLink {
   return {
     type: "inline",
     action: {
@@ -112,7 +113,7 @@ function NextAction(arr: any): NextActionLink {
         actions: [
           {
             label: "Submit",
-            href: "/api/actions/solmeet/create/action",
+            href: `/api/actions/solmeet/create/action?username=${username}`,
             parameters: [
               {
                 type: "select",

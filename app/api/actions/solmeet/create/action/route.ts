@@ -36,10 +36,13 @@ export async function POST(req: Request) {
   } catch (err) {
     throw new Error("Invalid account");
   }
+
+  const username = new URL(req.url).searchParams.get("username")!;
   //@ts-ignore
   let price = body.data!.price;
   const id = await prisma.solMeet.create({
     data: {
+      username,
       meetingId: parseInt(arr[0]),
       title: arr[1],
       description: arr[2],
