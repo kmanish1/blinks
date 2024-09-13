@@ -15,15 +15,16 @@ const headers = createActionHeaders();
 export function GET() {
   try {
     const payload: ActionGetResponse = {
-      title: "Connect blinks and cal.com",
-      description: "sd ckwdsfcoiwdskl fwkjdfn vwrkdsc",
+      title: "Create a blink for your cal.com event",
+      description:
+        "With this Blink, you can instantly generate a personalized blink url for your Cal.com event with customized pricing. Simply enter your Cal.com username, and within moments, a unique Blink url will be generated.",
       label: "Connect",
-      icon: "https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1685376092-no-show-fee.png&w=1200&q=75",
+      icon: "https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1662742861-calendso-rebrands-to-cal-com.png&w=1200&q=75",
       type: "action",
       links: {
         actions: [
           {
-            label: "Connect your wallet",
+            label: "Connect your wallet to receive payments",
             href: "/api/actions/solmeet/create",
             parameters: [
               {
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
     const payload: ActionPostResponse = await createPostResponse({
       fields: {
         transaction: tx,
-        message: `edsuif cerdcguv nt fdv`,
+        message: `Received the wallet address and in the next step set the price`,
         links: {
           next: NextAction(arr),
         },
@@ -103,13 +104,14 @@ function NextAction(arr: any): NextActionLink {
     action: {
       type: "action",
       title: "Generate Blink",
-      description: "this is the only description",
-      icon: "https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1685376092-no-show-fee.png&w=1200&q=75",
-      label: "abcd edf",
+      description:
+        "Select the event type in the drop down below and set the pricing in USDC",
+      icon: "https://cal.com/_next/image?url=https%3A%2F%2Fwww.datocms-assets.com%2F77432%2F1662742532-verified.png&w=1920&q=75",
+      label: "",
       links: {
         actions: [
           {
-            label: "Create your blink",
+            label: "Submit",
             href: "/api/actions/solmeet/create/action",
             parameters: [
               {

@@ -10,7 +10,7 @@ import { PublicKey } from "@solana/web3.js";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { mockTx } from "../fn";
-
+import QRCode from "qrcode";
 const headers = createActionHeaders();
 
 export const GET = async (req: Request) => {
@@ -50,7 +50,12 @@ export async function POST(req: Request) {
   });
 
   const tx = await mockTx(account);
+  const url = `https://solmeet.click/meet/?${id.id}`;
+  const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+    url
+  )}`;
 
+  const qrCodeDataUrl = await QRCode.toDataURL(twitterIntentUrl);
   const payload: ActionPostResponse = await createPostResponse({
     fields: {
       transaction: tx,
@@ -61,8 +66,8 @@ export async function POST(req: Request) {
           action: {
             type: "completed",
             title: "completed the txn",
-            description: `Here is your url https://api/actions/solmeet/meet/?${id.id}`,
-            icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/330px-QR_code_for_mobile_English_Wikipedia.svg.png",
+            description: `Scan the QR Code to directly post on X. Here is your url https://solmeet.click/meet/?${id.id} `,
+            icon: qrCodeDataUrl,
             label: "completed",
           },
         },
